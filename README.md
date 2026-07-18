@@ -22,37 +22,8 @@ This lab builds a fully functional Splunk SIEM environment across two Azure VMs 
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Microsoft Azure                                                  │
-│                                                                   │
-│  ┌─── VNet A — 10.0.0.0/16 ──────┐  ┌── VNet B — 172.16.0.0/16 ┐│
-│  │                                │  │                            ││
-│  │  Windows Server 2025 (AD DC)   │  │  Ubuntu 22.04 LTS          ││
-│  │  Private IP: 10.0.0.4          │  │  Private IP: 172.16.0.4    ││
-│  │                                │  │                            ││
-│  │  Log Sources                   │  │  Splunk Enterprise         ││
-│  │  ├── Security (4624/4625/4740) │  │  ├── Receiver :9997        ││
-│  │  ├── System   (7036)           │  │  ├── Indexer               ││
-│  │  └── Application (1001)        │  │  │   index=windows_logs    ││
-│  │          │                     │  │  ├── SPL Search Engine     ││
-│  │  Universal Forwarder           │  │  ├── Dashboards & Alerts   ││
-│  │  ├── inputs.conf               │  │  └── Web UI :8000          ││
-│  │  └── outputs.conf ─────────────┼──┼──► 172.16.0.4:9997        ││
-│  │                                │  │                            ││
-│  │  NSG: port 9997 (VNet only)    │  │  NSG: 8000 inbound         ││
-│  └────────────────────────────────┘  └────────────────────────────┘│
-│                    VNet Peering (bidirectional)                    │
-└─────────────────────────────────────────────────────────────────┘
-                               │
-                    HTTP port 8000 (internet)
-                               │
-                    ┌──────────▼──────────┐
-                    │  Analyst — browser  │
-                    │  Local machine      │
-                    └─────────────────────┘
+<img width="2720" height="1600" alt="splunk_siem_lab_architecture" src="https://github.com/user-attachments/assets/64fb5a91-9ae7-45f2-ae08-e121aebf258d" />
 
-```
 
 **Trust boundary:** The Universal Forwarder communicates with Splunk exclusively over the private Azure VNet peering connection on port 9997 — this traffic never touches the public internet. The Splunk web UI is exposed on port 8000 via the VM's public IP for analyst access. Port 9997 is restricted to VirtualNetwork source in the NSG so only internal Azure VMs can send log data.
 
